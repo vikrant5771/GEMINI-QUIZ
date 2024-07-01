@@ -1,0 +1,114 @@
+"use client"
+import React, { useState, useEffect } from 'react';
+import datas from '../../datas.json';
+
+const QuizContainer = () => {
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [timer, setTimer] = useState(30);
+  const [selectedChoice, setSelectedChoice] = useState(null);
+  const [isCorrect, setIsCorrect] = useState(null); // Track if selected choice is correct
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimer((prevTimer) => prevTimer - 1);
+    }, 1000);
+
+    if (timer === 0) {
+      clearInterval(interval);
+      handleNextQuestion();
+    }
+
+    return () => clearInterval(interval);
+  }, [timer]);
+
+  const handleNextQuestion = () => {
+    setCurrentQuestionIndex((prevIndex) => (prevIndex + 1) % datas.length);
+    setTimer(30);
+    setSelectedChoice(null);
+    setIsCorrect(null);
+  };
+
+  const handleChoiceClick = (choice:any) => {
+    if (selectedChoice === null) { // Allow only one chance to select
+      const currentQuestion = datas[currentQuestionIndex];
+      setSelectedChoice(choice);
+
+      if (choice === currentQuestion.correctAnswer) {
+        setIsCorrect(true);
+        setTimeout(() => {
+          handleNextQuestion();
+        }, 500); // Delay moving to next question for 1 second
+      } else {
+        setIsCorrect(false);
+        setTimeout(() => {
+          handleNextQuestion();
+        }, 500); // Delay moving to next question for 1 second
+      }
+    }
+  };
+
+  const currentQuestion = datas[currentQuestionIndex];
+  
+  return (
+    <div className='w-[800px] h-[500px] bg-white rounded-2xl shadow-md flex flex-col p-7'>
+      <div className='flex items-center justify-center flex-col'>
+        <h1 className='font-medium text-xl'>QUESTION {currentQuestionIndex + 1}</h1>
+              <p className='font-semibold mt-10 text-xl text-center'>{currentQuestion.question}</p>
+            {/* mapping the options */}
+        <div className='grid grid-cols-2 gap-9 gap-x-10 mt-12'>
+          {currentQuestion.choices.map((choice, index) => (
+            <div
+              key={index}
+              className={`p-4 rounded-full text-center text-white font-semibold text-md cursor-pointer hover:shadow-lg duration-300 ${
+
+                selectedChoice === choice
+                  ? isCorrect
+                    ? 'bg-green-500'
+                    : 'bg-red-500'
+                  : 'bg-yellow-400'
+              }`}
+              onClick={() => handleChoiceClick(choice)}
+            >
+              {choice}
+            </div>
+          ))}
+        </div>
+        <div className='mt-10'>
+          <p className='font-medium text-lg'>Timer : {timer} seconds</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default QuizContainer;
+
+
+
+
+
+
+
+
+ //  const [senddatas, setDatas] = useState(
+    //     {
+    //         numberOfQuestions: 5,
+    //         title : "India"
+            
+    //   })
+
+
+    // useEffect(() => {
+    //     const getData = async () => {
+    //         const response = await fetch('http://localhost:3000/api/generatequiz', {
+    //             method: 'POST',
+    //             body: JSON.stringify(datas)
+    //         })
+    //         console.log(response);
+    //         return response.json();
+    //     }
+
+    //  const res = getData();
+    // },[]);
+  
+// const data = getData();
